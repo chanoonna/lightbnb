@@ -75,6 +75,19 @@ const getAllReservations = function(guest_id, limit = 10) {
 };
 exports.getAllReservations = getAllReservations;
 
+/// New Reservations
+
+/**
+ * Check if the reservation date is available.
+ * If so, INSERT reservation data INTO reservations DB
+ * @param {{guest_id: integer, start_date: date, end_date: date}} values Reservation details
+ * @param {integer} property_id The id of the property.
+ * @return {Promise<[{}]>} A promise to the make reservations.
+ */
+const addReservation = function(values, property_id) {
+
+};
+
 /// Properties
 
 /**
@@ -151,45 +164,18 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const queryParams = [];
   const queryHead = `INSERT INTO properties `;
   const queryTail = `RETURNING *;`;
-  let queryCol = `
-  (
-    owner_id,
-    title,
-    description,
-    thumbnail_photo_url,
-    cover_photo_url,
-    cost_per_night,
-    street,
-    city,
-    province,
-    post_code,
-    country,
-    parking_spaces,
-    number_of_bathrooms,
-    number_of_bedrooms
-  )
-  `;
+  const queryParams = [];
+  let queryCol = '(';
+  
+  Object.entries(property).forEach(col => {
+    queryCol += col[0] + ', ';
+    queryParams.push(col[1]);
+  });
 
-  let queryVal = 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14 )\n';
-
-  queryParams.push(property.owner_id);
-  queryParams.push(property.title);
-  queryParams.push(property.description);
-  queryParams.push(property.thumbnail_photo_url);
-  queryParams.push(property.cover_photo_url);
-  queryParams.push(property.cost_per_night);
-  queryParams.push(property.street);
-  queryParams.push(property.city);
-  queryParams.push(property.province);
-  queryParams.push(property.post_code);
-  queryParams.push(property.country);
-  queryParams.push(property.parking_spaces);
-  queryParams.push(property.number_of_bathrooms);
-  queryParams.push(property.number_of_bedrooms);
-
+  queryCol = queryCol.slice(0, queryCol.length - 2) + ')';
+  const queryVal = 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14 )\n';
   const queryString = queryHead + queryCol + queryVal + queryTail;
 
   return db.query(queryString, queryParams).then(res => res.rows);
