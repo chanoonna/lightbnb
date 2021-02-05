@@ -10,6 +10,7 @@ $(() => {
     $searchPropertyForm.detach();
     $logInForm.detach();
     $signUpForm.detach();
+    $makeReservationForm.detach();
 
     switch (item) {
       case 'listings':
@@ -26,6 +27,9 @@ $(() => {
         break;
       case 'signUp':
         $signUpForm.appendTo($main);
+        break;
+      case 'reservation':
+        $makeReservationForm.appendTo($main);
         break;
       case 'error': {
         const $error = $(`<p>${arguments[1]}</p>`);

@@ -23,8 +23,29 @@ module.exports = function(router, database) {
     });
   });
 
+  router.post('/reservations', (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      res.error("You need to log in to make a reservation");
+      return;
+    }
+
+    database.addReservation({...req.body, guest_id: userId})
+      .then(property => {
+        res.send(property);
+      })
+      .catch(e => {
+        console.error(e);
+        res.send(e);
+      });
+  });
+
   router.post('/properties', (req, res) => {
     const userId = req.session.userId;
+    if (Object.prototype.hasOwnProperty.call(req.body, 'cost_per_night')) {
+      req.body.cost_per_night *= 100;
+    }
+
     database.addProperty({...req.body, owner_id: userId})
       .then(property => {
         res.send(property);

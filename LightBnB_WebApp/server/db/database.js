@@ -62,7 +62,7 @@ exports.addUser = addUser;
  * @param {string} guest_id The id of the user.
  * @return {Promise<[{}]>} A promise to the reservations.
  */
-const getAllReservations = function(guest_id, limit = 10) {
+const getAllReservations = function(guest_id, limit = 20) {
   return db.query(`
   SELECT *
   FROM reservations
@@ -81,13 +81,24 @@ exports.getAllReservations = getAllReservations;
  * Check if the reservation date is available.
  * If so, INSERT reservation data INTO reservations DB
  * @param {{guest_id: integer, start_date: date, end_date: date}} values Reservation details
- * @param {integer} property_id The id of the property.
  * @return {Promise<[{}]>} A promise to the make reservations.
  */
-const addReservation = function(values, property_id) {
+const addReservation = function(values) {
+  const queryParams = [ values.guest_id, values.start_date, values.end_date, values.property_id.slice(8) ];
+  const queryString = `
+    INSERT INTO reservations (
+      guest_id,
+      start_date,
+      end_date,
+      property_id
+    )
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+  `;
 
+  return db.query(queryString, queryParams).then(res => res.rows);
 };
-
+exports.addReservation = addReservation;
 /// Properties
 
 /**
